@@ -8,6 +8,6 @@
     <fragment
         tools:layout="@layout/fragment_list"
         android:id="@+id/filmsListFragment"
-        android:name="com.pvz.movies.ui.list.FilmsListFragment"
+        android:name="com.pvz.movies.ui.list.FilmListFragment"
         android:label="FilmsListFragment" />
 </navigation>
