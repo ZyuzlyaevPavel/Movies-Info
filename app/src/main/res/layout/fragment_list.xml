@@ -1,51 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+<androidx.core.widget.NestedScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <LinearLayout
-        android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/genresTitle"
+        <LinearLayout
+            android:id="@+id/genresLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/genres_title" />
+            android:orientation="vertical">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/genresRecycler"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            tools:itemCount="3"
-            tools:listitem="@layout/item_genre" />
-    </LinearLayout>
+            <Button
+                android:id="@+id/genresTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/genres_title" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/genresRecycler"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_genre" />
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/filmsTitle"
+        <LinearLayout
+            android:id="@+id/filmsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/films_title" />
+            android:background="@color/purple_500"
+            android:orientation="vertical">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/filmsRecycler"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:itemCount="3"
-            tools:listitem="@layout/item_movie">
+            <Button
+                android:id="@+id/filmsTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/films_title" />
 
-        </androidx.recyclerview.widget.RecyclerView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/filmsRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/purple_200"
+                tools:itemCount="15"
+                tools:listitem="@layout/item_movie">
+
+            </androidx.recyclerview.widget.RecyclerView>
+        </LinearLayout>
     </LinearLayout>
+</androidx.core.widget.NestedScrollView>
+
 
 </LinearLayout>
