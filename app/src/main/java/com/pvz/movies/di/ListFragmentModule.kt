@@ -6,15 +6,15 @@ import com.pvz.movies.ui.list.FilmListPresenter
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import dagger.hilt.android.components.FragmentComponent
+import dagger.hilt.android.scopes.FragmentScoped
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(FragmentComponent::class)
 class ListFragmentModule {
 
     @Provides
-    @Singleton
+    @FragmentScoped
     fun providePresenter(repository: FilmRepository): FilmListContract.FilmListPresenter {
         return FilmListPresenter(repository)
     }
