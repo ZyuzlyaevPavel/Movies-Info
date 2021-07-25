@@ -39,10 +39,20 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
 
     private var filmAdapter:FilmAdapter=FilmAdapter {
         Log.d("test","filmId -> $it")
-        val action= FilmListFragmentDirections.actionFilmsListFragmentToFilmDetailsFragment()
+        Log.d("test","filmId -> $it")
+        val action= FilmListFragmentDirections.actionFilmsListFragmentToFilmDetailsFragment(it.id,it.localizedName)
         findNavController().navigate(action)
     }
-    private var genreAdapter:GenreAdapter= GenreAdapter()
+    private val selectedGenreList:MutableList<Genre> = mutableListOf()
+    private var genreAdapter:GenreAdapter= GenreAdapter { item, position ->
+/*            if(!selectedGenreList.contains(item))
+                selectedGenreList.add(item)
+            else
+                selectedGenreList.remove(item)*/
+
+            presenter.filterFilmsByGenre(item)
+
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -51,14 +61,14 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
             genresRecycler.layoutManager=LinearLayoutManager(context)
             genresRecycler.adapter=genreAdapter
             filmsRecycler.layoutManager=GridLayoutManager(context,2,RecyclerView.VERTICAL,false)
-            //filmsRecycler.layoutManager=LinearLayoutManager(context)
             filmsRecycler.adapter=filmAdapter
 
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         presenter.takeView(this)
     }
 
@@ -67,11 +77,15 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
         presenter.dropView()
     }
 
-    override fun updateFilmRecycler(films: List<Film>?) {
+    override fun updateFilmRecycler(films: MutableList<Film>?) {
+        Log.d("test","updateFilmRecycler")
+        if (!films.isNullOrEmpty())
+            films.sortBy { it.localizedName }
         filmAdapter.submitList(films)
     }
 
     override fun updateGenresRecycler(listOf: List<Genre>?) {
+        Log.d("test","updateGenresRecycler")
         genreAdapter.submitList(listOf)
     }
 }

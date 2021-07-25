@@ -1,5 +1,6 @@
 package com.pvz.movies.ui.list.recycler
 
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
@@ -8,21 +9,26 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.pvz.movies.R
 import com.pvz.movies.databinding.ItemMovieBinding
 import com.pvz.movies.model.data.Film
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class FilmAdapter(val clickListener: FilmItemOnClickListener) : ListAdapter<Film, FilmAdapter.FilmViewHolder>(FilmDiffCallback()) {
-    class FilmViewHolder(private val binding: ItemMovieBinding, private val itemLickListener:FilmItemOnClickListener) : RecyclerView.ViewHolder(binding.root) {
+class FilmAdapter(val clickListener: FilmItemOnClickListener) :
+    ListAdapter<Film, FilmAdapter.FilmViewHolder>(FilmDiffCallback()) {
+    class FilmViewHolder(
+        private val binding: ItemMovieBinding,
+        private val itemLickListener: FilmItemOnClickListener
+    ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: Film) {
             binding.apply {
-                textView.text = item.name
+                textView.text = item.localizedName
                 root.setOnClickListener {
-                    itemLickListener.onClick(item.id)
+                    itemLickListener.onClick(item)
                 }
                 loadImageUrl(item)
 
@@ -30,34 +36,35 @@ class FilmAdapter(val clickListener: FilmItemOnClickListener) : ListAdapter<Film
         }
 
         private fun ItemMovieBinding.loadImageUrl(item: Film) {
-            Glide.with(binding.root)
-                .load(item.imageUrl)
-                .addListener(object : RequestListener<Drawable> {
-                    override fun onLoadFailed(
-                        e: GlideException?,
-                        model: Any?,
-                        target: Target<Drawable>?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        notFound.visibility = View.VISIBLE
-                        return true
-                    }
+            CoroutineScope(Dispatchers.Default).launch {
+                Glide.with(binding.root)
+                    .asBitmap()
+                    .load(item.imageUrl)
+                    .into(object : CustomTarget<Bitmap>() {
+                        override fun onResourceReady(
+                            resource: Bitmap,
+                            transition: Transition<in Bitmap>?
+                        ) {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                notFound.visibility = View.GONE
+                                imageView.setImageBitmap(resource)
+                            }
+                        }
 
-                    override fun onResourceReady(
-                        resource: Drawable?,
-                        model: Any?,
-                        target: Target<Drawable>?,
-                        dataSource: DataSource?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        notFound.visibility = View.GONE
-                        imageView.setImageDrawable(resource)
-                        return true
-                    }
+                        override fun onLoadCleared(placeholder: Drawable?) {
 
-                })
-                .error(R.drawable.item_film_fallback)
-                .into(imageView)
+                        }
+
+                        override fun onLoadFailed(errorDrawable: Drawable?) {
+                            super.onLoadFailed(errorDrawable)
+                            CoroutineScope(Dispatchers.Main).launch {
+                                notFound.visibility = View.VISIBLE
+                                imageView.setImageResource(R.drawable.item_film_fallback)
+                            }
+                        }
+
+                    })
+            }
         }
     }
 

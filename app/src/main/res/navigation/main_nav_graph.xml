@@ -16,7 +16,16 @@
     </fragment>
     <fragment
         android:id="@+id/filmDetailsFragment"
-        android:name="com.pvz.movies.ui.info.FilmDetailsFragment"
+        android:name="com.pvz.movies.ui.details.FilmDetailsFragment"
         android:label="FilmDetailsFragment"
-        tools:layout="@layout/fragment_details" />
+        tools:layout="@layout/fragment_details" >
+        <argument
+            android:name="filmId"
+            android:defaultValue="-1L"
+            app:argType="long" />
+        <argument
+            android:name="filmName"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
 </navigation>

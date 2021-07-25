@@ -14,13 +14,15 @@ import java.io.IOException
 class FilmRepository(private val api: FilmFetchService) {
     val filmsList = MutableLiveData<List<Film>>()
     val genreList = MutableLiveData<List<Genre>>()
-    init{
+
+    init {
         CoroutineScope(Dispatchers.IO).launch {
             val localFilmList = fetchFilmList()
-            val localGenreList= mutableListOf<Genre>()
+            val localGenreList = mutableListOf<Genre>()
             Log.d("test", "localFilmList -> $localFilmList")
             filmsList.postValue(localFilmList)
-            if(localFilmList!=null)
+
+            if (localFilmList != null)
                 parseGenres(localFilmList, localGenreList)
             Log.d("test", "localGenreList -> $localGenreList")
             genreList.postValue(localGenreList)
@@ -32,10 +34,10 @@ class FilmRepository(private val api: FilmFetchService) {
         localGenreList: MutableList<Genre>
     ) {
         for (i in list.iterator()) {
-            for(j in i.genres){
+            for (j in i.genres) {
                 val element = Genre(j)
-                if(!localGenreList.contains(element))
-                localGenreList.add(element)
+                if (!localGenreList.contains(element))
+                    localGenreList.add(element)
             }
         }
     }
@@ -52,4 +54,18 @@ class FilmRepository(private val api: FilmFetchService) {
         }
         return null
     }
+
+    val lastSelectedFilm = MutableLiveData<Film>()
+
+    fun getFilmById(filmId: Long): MutableLiveData<Film> {
+        val films = filmsList.value
+        if (!films.isNullOrEmpty())
+            for (i in films.iterator()) {
+                if (i.id == filmId)
+                    lastSelectedFilm.postValue(i)
+            }
+        return lastSelectedFilm
+    }
+
+
 }

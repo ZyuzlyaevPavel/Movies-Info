@@ -1,8 +1,8 @@
 package com.pvz.movies.di
 
 import com.pvz.movies.model.repository.FilmRepository
-import com.pvz.movies.ui.info.FilmDetailsContract
-import com.pvz.movies.ui.info.FilmDetailsPresenter
+import com.pvz.movies.ui.details.FilmDetailsContract
+import com.pvz.movies.ui.details.FilmDetailsPresenter
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
