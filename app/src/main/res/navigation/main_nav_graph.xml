@@ -9,5 +9,14 @@
         tools:layout="@layout/fragment_list"
         android:id="@+id/filmsListFragment"
         android:name="com.pvz.movies.ui.list.FilmListFragment"
-        android:label="FilmsListFragment" />
+        android:label="FilmsListFragment" >
+        <action
+            android:id="@+id/action_filmsListFragment_to_filmDetailsFragment"
+            app:destination="@id/filmDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/filmDetailsFragment"
+        android:name="com.pvz.movies.ui.info.FilmDetailsFragment"
+        android:label="FilmDetailsFragment"
+        tools:layout="@layout/fragment_details" />
 </navigation>

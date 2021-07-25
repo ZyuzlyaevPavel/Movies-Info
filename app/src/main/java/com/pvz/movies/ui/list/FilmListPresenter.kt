@@ -1,52 +1,60 @@
 package com.pvz.movies.ui.list
 
-import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.pvz.movies.model.data.Film
 import com.pvz.movies.model.data.Genre
-import com.pvz.movies.model.repository.FilmDataSource
+import com.pvz.movies.model.repository.FilmRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class FilmListPresenter @Inject constructor(private val repository: FilmDataSource) :
+class FilmListPresenter @Inject constructor(private val repository: FilmRepository) :
     FilmListContract.FilmListPresenter {
     var view: FilmListContract.FilmListView? = null
-    private val filmsList: MutableLiveData<List<Film>> = MutableLiveData()
 
-    init {
-        CoroutineScope(Dispatchers.IO).launch {
-            val list = repository.fetchFilmList()
-            Log.d("test", "$list")
-            filmsList.postValue(list)
-        }
+    private val filmDataObserver:Observer<List<Film>> = Observer{
+        updateFilmRecyclerUI(it)
     }
-    val filmListObserver:Observer<List<Film>> = Observer{
-            updateViewRecyclers(it)
+
+    private val genreDataObserver:Observer<List<Genre>> = Observer{
+        updateGenreRecyclerUI(it)
     }
+
     override fun takeView(view: FilmListContract.FilmListView) {
         this.view = view
-        if (!filmsList.value.isNullOrEmpty())
-            updateViewRecyclers(filmsList.value)
-        else
-            filmsList.observeForever(filmListObserver)
+        repository.apply {
+            if (!filmsList.value.isNullOrEmpty())
+                updateFilmRecyclerUI(filmsList.value)
+            else
+                filmsList.observeForever(filmDataObserver)
+            if (!genreList.value.isNullOrEmpty())
+                updateGenreRecyclerUI(genreList.value)
+            else
+                genreList.observeForever(genreDataObserver)
+        }
 
     }
 
-    private fun updateViewRecyclers(
-        list: List<Film>?
+    private fun updateFilmRecyclerUI(
+        filmList: List<Film>?
     ) {
         CoroutineScope(Dispatchers.Main).launch {
-            view?.updateFilmRecycler(list)
-            view?.updateGenresRecycler(listOf(Genre(0, "test")))
+            view?.updateFilmRecycler(filmList)
+        }
+    }
+
+    private fun updateGenreRecyclerUI(
+        genreList: List<Genre>?
+    ) {
+        CoroutineScope(Dispatchers.Main).launch {
+            view?.updateGenresRecycler(genreList)
         }
     }
 
     override fun dropView() {
         this.view = null
-        filmsList.removeObserver(filmListObserver)
+        repository.filmsList.removeObserver(filmDataObserver)
     }
 
 

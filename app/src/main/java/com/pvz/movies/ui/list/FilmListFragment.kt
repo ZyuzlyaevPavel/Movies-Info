@@ -1,10 +1,12 @@
 package com.pvz.movies.ui.list
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +25,7 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
     lateinit var presenter: FilmListContract.FilmListPresenter
     private lateinit var binding: FragmentListBinding
 
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -34,7 +37,11 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
         return view
     }
 
-    private var filmAdapter:FilmAdapter=FilmAdapter()
+    private var filmAdapter:FilmAdapter=FilmAdapter {
+        Log.d("test","filmId -> $it")
+        val action= FilmListFragmentDirections.actionFilmsListFragmentToFilmDetailsFragment()
+        findNavController().navigate(action)
+    }
     private var genreAdapter:GenreAdapter= GenreAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -64,7 +71,7 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
         filmAdapter.submitList(films)
     }
 
-    override fun updateGenresRecycler(listOf: List<Genre>) {
+    override fun updateGenresRecycler(listOf: List<Genre>?) {
         genreAdapter.submitList(listOf)
     }
 }

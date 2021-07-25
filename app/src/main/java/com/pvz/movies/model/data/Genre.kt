@@ -1,7 +1,12 @@
 package com.pvz.movies.model.data
 
 data class Genre(
-    val id:Long,
     val name:String
 ) {
+
+    override fun equals(other: Any?): Boolean =
+        if(other is Genre)
+            this.name==other.name
+        else
+            false
 }

@@ -10,7 +10,7 @@ interface FilmListContract:IContract {
     }
     interface FilmListView:IContract.IView<FilmListPresenter>{
         fun updateFilmRecycler(films: List<Film>?)
-        fun updateGenresRecycler(listOf: List<Genre>)
+        fun updateGenresRecycler(listOf: List<Genre>?)
 
     }
 }

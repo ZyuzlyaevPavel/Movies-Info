@@ -19,7 +19,7 @@ class GenreAdapter : ListAdapter<Genre, GenreAdapter.GenreViewHolder>(GenreDiffC
         override fun areItemsTheSame(oldItem: Genre, newItem: Genre): Boolean = oldItem == newItem
 
         override fun areContentsTheSame(oldItem: Genre, newItem: Genre): Boolean =
-            oldItem.id == newItem.id
+            oldItem.name == newItem.name
 
     }
 

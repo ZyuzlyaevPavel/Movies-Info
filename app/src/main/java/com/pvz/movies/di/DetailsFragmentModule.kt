@@ -1,7 +1,8 @@
 package com.pvz.movies.di
 
-import com.pvz.movies.model.api.FilmFetchClient
 import com.pvz.movies.model.repository.FilmRepository
+import com.pvz.movies.ui.info.FilmDetailsContract
+import com.pvz.movies.ui.info.FilmDetailsPresenter
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -10,11 +11,11 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class RetrofitModule {
+class DetailsFragmentModule {
 
     @Provides
     @Singleton
-    fun provideFilmDataSource(): FilmRepository {
-        return FilmRepository(FilmFetchClient.getClient())
+    fun providePresenter(repository: FilmRepository): FilmDetailsContract.FilmDetailsPresenter {
+        return FilmDetailsPresenter(repository)
     }
 }
