@@ -1,5 +1,7 @@
 package com.pvz.movies.ui
 
+import androidx.lifecycle.LifecycleOwner
+
 
 interface IContract {
     interface IPresenter<T>{
@@ -7,7 +9,7 @@ interface IContract {
 
         fun dropView()
     }
-    interface IView<T>{
+    interface IView<T>:LifecycleOwner{
 
     }
 }

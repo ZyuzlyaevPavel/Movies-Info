@@ -36,7 +36,6 @@ class FilmAdapter(val clickListener: FilmItemOnClickListener) :
         }
 
         private fun ItemMovieBinding.loadImageUrl(item: Film) {
-            CoroutineScope(Dispatchers.Default).launch {
                 Glide.with(binding.root)
                     .asBitmap()
                     .load(item.imageUrl)
@@ -62,9 +61,7 @@ class FilmAdapter(val clickListener: FilmItemOnClickListener) :
                                 imageView.setImageResource(R.drawable.item_film_fallback)
                             }
                         }
-
                     })
-            }
         }
     }
 

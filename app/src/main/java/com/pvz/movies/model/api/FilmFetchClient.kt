@@ -3,7 +3,6 @@ package com.pvz.movies.model.api
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.concurrent.TimeUnit
 
 object FilmFetchClient {
@@ -13,7 +12,7 @@ object FilmFetchClient {
 
          val client=OkHttpClient.Builder()
              .connectTimeout(60,TimeUnit.SECONDS)
-             .addInterceptor (FilmsInterceptor())
+             //.addInterceptor (FilmsInterceptor())
              .build()
         return Retrofit.Builder()
             .client(client)

@@ -1,6 +1,7 @@
 package com.pvz.movies.ui.list
 
 import android.util.Log
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import com.pvz.movies.model.data.Film
 import com.pvz.movies.model.data.Genre
@@ -14,13 +15,6 @@ class FilmListPresenter @Inject constructor(private val repository: FilmReposito
     FilmListContract.FilmListPresenter {
     var view: FilmListContract.FilmListView? = null
 
-    private val filmDataObserver: Observer<List<Film>> = Observer {
-        updateFilmRecyclerUI(it)
-    }
-
-    private val genreDataObserver: Observer<List<Genre>> = Observer {
-        updateGenreRecyclerUI(it)
-    }
 
     override fun filterFilmsByGenre(selectedGenres: List<Genre>) {
         val values = repository.filmsList.value
@@ -60,20 +54,26 @@ class FilmListPresenter @Inject constructor(private val repository: FilmReposito
         }
     }
 
+    private val filmDataObserver: Observer<List<Film>> = Observer {
+        updateFilmRecyclerUI(it)
+    }
+
+    private val genreDataObserver: Observer<List<Genre>> = Observer {
+        updateGenreRecyclerUI(it)
+    }
+
     override fun takeView(view: FilmListContract.FilmListView) {
         Log.d("test","takeView")
         this.view = view
-        repository.apply {
-            if (!filmsList.value.isNullOrEmpty())
-                updateFilmRecyclerUI(filmsList.value)
-            else
-                filmsList.observeForever(filmDataObserver)
-            if (!genreList.value.isNullOrEmpty())
-                updateGenreRecyclerUI(genreList.value)
-            else
-                genreList.observeForever(genreDataObserver)
-        }
-
+        view.notifyDataLoading()
+        val liveDataMerger: MediatorLiveData<*> = MediatorLiveData<Any>()
+        liveDataMerger.addSource(repository.filmsList) {liveDataMerger.value=it}
+        liveDataMerger.addSource(repository.genreList) {liveDataMerger.value=it}
+        liveDataMerger.observe(view, {
+            notifyDataAquisitionUI()
+        })
+        repository.filmsList.observe(view,filmDataObserver)
+        repository.genreList.observe(view,genreDataObserver)
     }
 
     private fun updateFilmRecyclerUI(
@@ -81,6 +81,12 @@ class FilmListPresenter @Inject constructor(private val repository: FilmReposito
     ) {
         CoroutineScope(Dispatchers.Main).launch {
             view?.updateFilmRecycler(filmList?.toMutableList())
+        }
+    }
+
+    private fun notifyDataAquisitionUI() {
+        CoroutineScope(Dispatchers.Main).launch {
+            view?.notifyDataAquisition()
         }
     }
 
@@ -97,6 +103,5 @@ class FilmListPresenter @Inject constructor(private val repository: FilmReposito
         this.view = null
         repository.filmsList.removeObserver(filmDataObserver)
     }
-
 
 }

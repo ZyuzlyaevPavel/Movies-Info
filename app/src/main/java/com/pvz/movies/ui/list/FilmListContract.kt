@@ -12,6 +12,8 @@ interface FilmListContract:IContract {
     interface FilmListView:IContract.IView<FilmListPresenter>{
         fun updateFilmRecycler(films: MutableList<Film>?)
         fun updateGenresRecycler(listOf: List<Genre>?)
-
+        fun notifyDataLoading()
+        fun notifyDataAquisition()
+        fun notifyDataLoadingFail()
     }
 }

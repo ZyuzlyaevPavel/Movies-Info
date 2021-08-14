@@ -47,7 +47,7 @@ class FilmRepository(private val api: FilmFetchService) {
         try {
             val response = api.getFilms().awaitResponse()
             if (response.isSuccessful) {
-                return response.body()
+                return response.body()?.films
             }
         } catch (ex: IOException) {
             ex.printStackTrace()

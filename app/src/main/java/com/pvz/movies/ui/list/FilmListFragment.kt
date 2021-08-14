@@ -8,8 +8,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.flexbox.FlexboxLayoutManager
 import com.pvz.movies.R
 import com.pvz.movies.databinding.FragmentListBinding
 import com.pvz.movies.model.data.Film
@@ -39,12 +39,11 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
 
     private var filmAdapter:FilmAdapter=FilmAdapter {
         Log.d("test","filmId -> $it")
-        Log.d("test","filmId -> $it")
         val action= FilmListFragmentDirections.actionFilmsListFragmentToFilmDetailsFragment(it.id,it.localizedName)
         findNavController().navigate(action)
     }
     private val selectedGenreList:MutableList<Genre> = mutableListOf()
-    private var genreAdapter:GenreAdapter= GenreAdapter { item, position ->
+    private var genreAdapter:GenreAdapter= GenreAdapter { item, _ ->
 /*            if(!selectedGenreList.contains(item))
                 selectedGenreList.add(item)
             else
@@ -58,24 +57,20 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
-            genresRecycler.layoutManager=LinearLayoutManager(context)
+            genresRecycler.layoutManager=FlexboxLayoutManager(context)
             genresRecycler.adapter=genreAdapter
             filmsRecycler.layoutManager=GridLayoutManager(context,2,RecyclerView.VERTICAL,false)
             filmsRecycler.adapter=filmAdapter
-
         }
-    }
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         presenter.takeView(this)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
         presenter.dropView()
     }
+
+
 
     override fun updateFilmRecycler(films: MutableList<Film>?) {
         Log.d("test","updateFilmRecycler")
@@ -88,4 +83,29 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
         Log.d("test","updateGenresRecycler")
         genreAdapter.submitList(listOf)
     }
+
+    override fun notifyDataLoading() {
+        with(binding) {
+            notReadyLayout.visibility=View.VISIBLE
+            readyLayout.visibility=View.GONE
+            errorLayout.visibility=View.GONE
+        }
+    }
+
+    override fun notifyDataAquisition() {
+        with(binding) {
+            notReadyLayout.visibility=View.GONE
+            readyLayout.visibility=View.VISIBLE
+            errorLayout.visibility=View.GONE
+        }
+    }
+
+    override fun notifyDataLoadingFail() {
+        with(binding) {
+            notReadyLayout.visibility = View.GONE
+            readyLayout.visibility = View.GONE
+            errorLayout.visibility = View.VISIBLE
+        }
+    }
+
 }
