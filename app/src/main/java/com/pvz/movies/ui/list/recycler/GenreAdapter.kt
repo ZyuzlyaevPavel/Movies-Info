@@ -15,19 +15,15 @@ class GenreAdapter(private val onClickListener: GenreItemOnClickListener) :
 
     inner class GenreViewHolder(
         private val binding: ItemGenreBinding,
-        val clickListener: GenreItemOnClickListener
+        private val clickListener: GenreItemOnClickListener
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: Genre, position: Int) {
             binding.apply {
                 genreName.apply {
                     text = item.name
                     setOnClickListener {
-                        clickListener.onClick(item, position)
-                        if (selectedIndex != -1)
-                            notifyItemChanged(lastItemSelectedPosition)
-                        lastItemSelectedPosition = position
-                        selectedIndex = position
-                        notifyItemChanged(position)
+                        selectGenre(position,true)
+                        clickListener.onClick(item, selectedIndex)
                     }
                     isSelected = selectedIndex == position
                 }
@@ -51,6 +47,19 @@ class GenreAdapter(private val onClickListener: GenreItemOnClickListener) :
 
     override fun onBindViewHolder(holder: GenreViewHolder, position: Int) {
         holder.bind(getItem(position), position)
+    }
+
+    fun selectGenre(position: Int,clickEvent: Boolean = false) {
+        if (selectedIndex != position || !clickEvent) {
+            if (selectedIndex != -1)
+                notifyItemChanged(lastItemSelectedPosition)
+            lastItemSelectedPosition = position
+            selectedIndex = position
+            notifyItemChanged(position)
+        } else {
+            selectedIndex = -1
+            notifyItemChanged(position)
+        }
     }
 
 }

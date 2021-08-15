@@ -77,7 +77,6 @@ class FilmDetailsFragment : Fragment(R.layout.fragment_details),
     }
 
     private fun loadImageUrl(imageUrl: String, imageView: ImageView, notFound: TextView) {
-        CoroutineScope(Dispatchers.Default).launch {
             Glide.with(requireContext())
                 .asBitmap()
                 .load(imageUrl)
@@ -103,9 +102,7 @@ class FilmDetailsFragment : Fragment(R.layout.fragment_details),
                             imageView.setImageResource(R.drawable.item_film_fallback)
                         }
                     }
-
                 })
-        }
     }
 
 }
