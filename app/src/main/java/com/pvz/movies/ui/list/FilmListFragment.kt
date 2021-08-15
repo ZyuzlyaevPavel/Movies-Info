@@ -19,12 +19,18 @@ import com.pvz.movies.ui.list.recycler.GenreAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+
 @AndroidEntryPoint
 class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.FilmListView {
+    companion object {
+        private const val SELECTED_GENRE_ITEM: String = "selected_genre_item"
+    }
+
+    private var selectedGenre: Genre? = null
+
     @Inject
     lateinit var presenter: FilmListContract.FilmListPresenter
     private lateinit var binding: FragmentListBinding
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,19 +43,23 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
         return view
     }
 
-    private var filmAdapter:FilmAdapter=FilmAdapter {
-        Log.d("test","filmId -> $it")
-        val action= FilmListFragmentDirections.actionFilmsListFragmentToFilmDetailsFragment(it.id,it.localizedName)
+    private var filmAdapter: FilmAdapter = FilmAdapter {
+        Log.d("test", "filmId -> $it")
+        val action = FilmListFragmentDirections.actionFilmsListFragmentToFilmDetailsFragment(
+            it.id,
+            it.localizedName
+        )
         findNavController().navigate(action)
     }
-    private val selectedGenreList:MutableList<Genre> = mutableListOf()
-    private var genreAdapter:GenreAdapter= GenreAdapter { item, _ ->
-/*            if(!selectedGenreList.contains(item))
-                selectedGenreList.add(item)
-            else
-                selectedGenreList.remove(item)*/
 
-            presenter.filterFilmsByGenre(item)
+    private var genreAdapter: GenreAdapter = GenreAdapter { item, selectedIndex ->
+        if (selectedIndex > 0) {
+            selectedGenre = item
+            presenter.requestFilteredFilmsByGenre(item)
+        } else {
+            selectedGenre = null
+            presenter.requestUnfilteredFilms()
+        }
 
     }
 
@@ -57,12 +67,22 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
-            genresRecycler.layoutManager=FlexboxLayoutManager(context)
-            genresRecycler.adapter=genreAdapter
-            filmsRecycler.layoutManager=GridLayoutManager(context,2,RecyclerView.VERTICAL,false)
-            filmsRecycler.adapter=filmAdapter
+            genresRecycler.layoutManager = FlexboxLayoutManager(context)
+            genresRecycler.adapter = genreAdapter
+            filmsRecycler.layoutManager =
+                GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)
+            filmsRecycler.adapter = filmAdapter
         }
+
         presenter.takeView(this)
+        savedInstanceState?.getParcelable<Genre>(SELECTED_GENRE_ITEM).let {
+            if (it != null)
+                presenter.requestFilteredFilmsByGenre(it)
+            else{
+                presenter.requestUnfilteredFilms()
+            }
+        }
+
     }
 
     override fun onDestroyView() {
@@ -71,32 +91,43 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
     }
 
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (selectedGenre != null)
+            outState.putParcelable(SELECTED_GENRE_ITEM,selectedGenre)
+    }
+
 
     override fun updateFilmRecycler(films: MutableList<Film>?) {
-        Log.d("test","updateFilmRecycler")
+        Log.d("test", "updateFilmRecycler")
         if (!films.isNullOrEmpty())
             films.sortBy { it.localizedName }
         filmAdapter.submitList(films)
     }
 
     override fun updateGenresRecycler(listOf: List<Genre>?) {
-        Log.d("test","updateGenresRecycler")
+        Log.d("test", "updateGenresRecycler")
         genreAdapter.submitList(listOf)
+    }
+
+    override fun selectGenre(genre: Genre) {
+        selectedGenre=genre
+        genreAdapter.selectGenre(genreAdapter.currentList.indexOf(genre))
     }
 
     override fun notifyDataLoading() {
         with(binding) {
-            notReadyLayout.visibility=View.VISIBLE
-            readyLayout.visibility=View.GONE
-            errorLayout.visibility=View.GONE
+            notReadyLayout.visibility = View.VISIBLE
+            readyLayout.visibility = View.GONE
+            errorLayout.visibility = View.GONE
         }
     }
 
     override fun notifyDataAquisition() {
         with(binding) {
-            notReadyLayout.visibility=View.GONE
-            readyLayout.visibility=View.VISIBLE
-            errorLayout.visibility=View.GONE
+            notReadyLayout.visibility = View.GONE
+            readyLayout.visibility = View.VISIBLE
+            errorLayout.visibility = View.GONE
         }
     }
 
@@ -107,5 +138,6 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
             errorLayout.visibility = View.VISIBLE
         }
     }
+
 
 }
