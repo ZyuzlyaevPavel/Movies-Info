@@ -9,7 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.flexbox.AlignItems
+import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.flexbox.JustifyContent
 import com.pvz.movies.R
 import com.pvz.movies.databinding.FragmentListBinding
 import com.pvz.movies.model.data.Film
@@ -53,7 +56,7 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
     }
 
     private var genreAdapter: GenreAdapter = GenreAdapter { item, selectedIndex ->
-        if (selectedIndex > 0) {
+        if (selectedIndex > -1) {
             selectedGenre = item
             presenter.requestFilteredFilmsByGenre(item)
         } else {
@@ -78,10 +81,17 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
         super.onViewCreated(view, savedInstanceState)
 
         with(binding) {
-            genresRecycler.layoutManager = FlexboxLayoutManager(context)
+            genresRecycler.layoutManager = FlexboxLayoutManager(context).also {
+                //it.flexWrap=FlexWrap.WRAP
+                it.alignItems= AlignItems.STRETCH
+                it.flexDirection = FlexDirection.ROW
+                //it.alignContent = AlignContent.STRETCH
+                it.justifyContent = JustifyContent.CENTER
+
+            }
             genresRecycler.adapter = genreAdapter
             filmsRecycler.layoutManager =
-                GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)
+               GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)
             filmsRecycler.adapter = filmAdapter
         }
 
@@ -108,7 +118,7 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
 
 
     override fun updateFilmRecycler(films: MutableList<Film>?) {
-        Log.d("test", "updateFilmRecycler")
+        Log.d("test", "updateFilmRecycler:${films?.size}")
         if (!films.isNullOrEmpty())
             films.sortBy { it.localizedName }
         filmAdapter.submitList(films)

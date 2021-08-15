@@ -2,11 +2,11 @@ package com.pvz.movies.ui.list
 
 import android.util.Log
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import com.pvz.movies.model.data.Film
 import com.pvz.movies.model.data.Genre
 import com.pvz.movies.model.repository.FilmRepository
 import com.pvz.movies.utils.GlobalExtensions.observeOnce
+import com.pvz.movies.utils.SingleLiveEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,8 +15,8 @@ import javax.inject.Inject
 class FilmListPresenter @Inject constructor(private val repository: FilmRepository) :
     FilmListContract.FilmListPresenter {
     var view: FilmListContract.FilmListView? = null
-    private val selectedGenre: MutableLiveData<Genre> = MutableLiveData()
-    private val noSelection: MutableLiveData<Boolean> = MutableLiveData()
+    private val selectedGenre: SingleLiveEvent<Genre> = SingleLiveEvent()
+    private val noSelection: SingleLiveEvent<Boolean> = SingleLiveEvent()
 
     private val onConfigChangeSelection: MediatorLiveData<Any> =
         MediatorLiveData<Any>().also { mediator ->
@@ -46,12 +46,15 @@ class FilmListPresenter @Inject constructor(private val repository: FilmReposito
                     repository.genreList.observe(view, { genreList ->
                         updateGenreRecyclerUI(genreList).let {
                             selectedGenre.observe(view, { genre ->
-                                filterFilmsByGenre(films, genre)
+                                Log.d("test","selectedGenre")
+                                filterFilmsByGenre(films, genre!!)
                             })
                             noSelection.observe(view, {
+                                Log.d("test","noSelection")
                                 updateFilmRecyclerUI(films)
                             })
                             onConfigChangeSelection.observeOnce(view, {
+                                Log.d("test","onConfigChangeSelection")
                                 if (it is Genre)
                                     selectGenreUI(view, it)
                                 else

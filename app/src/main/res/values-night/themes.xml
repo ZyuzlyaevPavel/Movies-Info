@@ -12,5 +12,16 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="materialButtonStyle">@style/Theme.MoviesInfo.Button</item>
+    </style>
+    <style name="Theme.MoviesInfo.Button" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/button</item>
+        <item name="enforceMaterialTheme">true</item>
+        <item name="enforceTextAppearance">true</item>
+        <item name="android:textAppearance">?attr/textAppearanceButton</item>
+        <item name="android:textColor">@color/mtrl_btn_text_color_selector</item>
+    </style>
+    <style name="Theme.MoviesInfo.Category" parent="Theme.MoviesInfo.Button">
+        <item name="android:background">@drawable/category</item>
     </style>
 </resources>
