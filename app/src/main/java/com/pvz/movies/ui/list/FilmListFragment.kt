@@ -60,13 +60,24 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
             selectedGenre = null
             presenter.requestUnfilteredFilms()
         }
+    }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        presenter.requestData()
+        savedInstanceState?.getParcelable<Genre>(SELECTED_GENRE_ITEM).let {
+            if (it != null)
+                presenter.requestFilteredFilmsByGenre(it)
+            else{
+                presenter.requestUnfilteredFilms()
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.apply {
+        with(binding) {
             genresRecycler.layoutManager = FlexboxLayoutManager(context)
             genresRecycler.adapter = genreAdapter
             filmsRecycler.layoutManager =
@@ -75,15 +86,13 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
         }
 
         presenter.takeView(this)
-        savedInstanceState?.getParcelable<Genre>(SELECTED_GENRE_ITEM).let {
-            if (it != null)
-                presenter.requestFilteredFilmsByGenre(it)
-            else{
-                presenter.requestUnfilteredFilms()
-            }
-        }
 
+        binding.retryButton.setOnClickListener {
+            presenter.requestData()
+        }
     }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -112,7 +121,8 @@ class FilmListFragment : Fragment(R.layout.fragment_list), FilmListContract.Film
 
     override fun selectGenre(genre: Genre) {
         selectedGenre=genre
-        genreAdapter.selectGenre(genreAdapter.currentList.indexOf(genre))
+        val position = genreAdapter.currentList.indexOf(genre)
+        genreAdapter.selectGenre(position)
     }
 
     override fun notifyDataLoading() {

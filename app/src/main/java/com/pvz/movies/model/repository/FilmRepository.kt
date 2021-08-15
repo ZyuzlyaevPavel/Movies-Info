@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.pvz.movies.model.api.FilmFetchService
 import com.pvz.movies.model.data.Film
 import com.pvz.movies.model.data.Genre
+import com.pvz.movies.utils.SingleLiveEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -14,8 +15,9 @@ import java.io.IOException
 class FilmRepository(private val api: FilmFetchService) {
     val filmsList = MutableLiveData<List<Film>>()
     val genreList = MutableLiveData<List<Genre>>()
+    val error = SingleLiveEvent<Exception>()
 
-    init {
+    fun requestData() {
         CoroutineScope(Dispatchers.IO).launch {
             val localFilmList = fetchFilmList()
             val localGenreList = mutableListOf<Genre>()
@@ -50,7 +52,7 @@ class FilmRepository(private val api: FilmFetchService) {
                 return response.body()?.films
             }
         } catch (ex: IOException) {
-            ex.printStackTrace()
+            error.postValue(ex)
         }
         return null
     }

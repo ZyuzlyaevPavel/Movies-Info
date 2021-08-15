@@ -12,7 +12,7 @@ object FilmFetchClient {
 
          val client=OkHttpClient.Builder()
              .connectTimeout(60,TimeUnit.SECONDS)
-             //.addInterceptor (FilmsInterceptor())
+            // .addInterceptor (ErrorHandlingInterceptor())
              .build()
         return Retrofit.Builder()
             .client(client)

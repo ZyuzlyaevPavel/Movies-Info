@@ -3,7 +3,6 @@ package com.pvz.movies.ui.list
 import android.util.Log
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import com.pvz.movies.model.data.Film
 import com.pvz.movies.model.data.Genre
 import com.pvz.movies.model.repository.FilmRepository
@@ -19,14 +18,6 @@ class FilmListPresenter @Inject constructor(private val repository: FilmReposito
     private val selectedGenre: MutableLiveData<Genre> = MutableLiveData()
     private val noSelection: MutableLiveData<Boolean> = MutableLiveData()
 
-    override fun requestFilteredFilmsByGenre(genre: Genre) {
-        selectedGenre.postValue(genre)
-    }
-
-    override fun requestUnfilteredFilms() {
-        noSelection.postValue(true)
-    }
-
     private val onConfigChangeSelection: MediatorLiveData<Any> =
         MediatorLiveData<Any>().also { mediator ->
             mediator.addSource(selectedGenre) {
@@ -37,41 +28,53 @@ class FilmListPresenter @Inject constructor(private val repository: FilmReposito
             }
         }
 
-    private val liveDataMerger: MediatorLiveData<*> = MediatorLiveData<Any>().also { mediator ->
-        mediator.addSource(repository.filmsList) { mediator.value = it }
-        mediator.addSource(repository.genreList) { mediator.value = it }
+    override fun requestFilteredFilmsByGenre(genre: Genre) {
+        selectedGenre.postValue(genre)
     }
 
+    override fun requestUnfilteredFilms() {
+        noSelection.postValue(true)
+    }
 
     override fun takeView(view: FilmListContract.FilmListView) {
         Log.d("test", "takeView")
         this.view = view
-        view.notifyDataLoading()
 
-        liveDataMerger.observe(view, {
-            notifyDataAquisitionUI()
-        })
         repository.filmsList.observe(view, { films ->
-            repository.genreList.observe(view, { genreList ->
-                updateGenreRecyclerUI(genreList).let {
-                    selectedGenre.observe(view, { genre ->
-                        filterFilmsByGenre(films, genre)
-                    })
-                    noSelection.observe(view, {
-                        updateFilmRecyclerUI(films)
-                    })
-
-                    onConfigChangeSelection.observeOnce(view, Observer {
-                        if (it is Genre)
-                            selectGenreUI(view, it)
-                        else
-                            updateFilmRecyclerUI(films)
+            if (films != null) {
+                notifyDataAquisitionUI().let {
+                    repository.genreList.observe(view, { genreList ->
+                        updateGenreRecyclerUI(genreList).let {
+                            selectedGenre.observe(view, { genre ->
+                                filterFilmsByGenre(films, genre)
+                            })
+                            noSelection.observe(view, {
+                                updateFilmRecyclerUI(films)
+                            })
+                            onConfigChangeSelection.observeOnce(view, {
+                                if (it is Genre)
+                                    selectGenreUI(view, it)
+                                else
+                                    updateFilmRecyclerUI(films)
+                            })
+                        }
                     })
                 }
-            })
+            }
         })
+        repository.error.observe(view, {
+            view.notifyDataLoadingFail()
+        })
+    }
 
+    override fun requestData(){
+        repository.requestData()
+        view?.notifyDataLoading()
+    }
 
+    override fun dropView() {
+        Log.d("test", "dropView")
+        this.view = null
     }
 
     private fun filterFilmsByGenre(
@@ -124,10 +127,4 @@ class FilmListPresenter @Inject constructor(private val repository: FilmReposito
             view?.updateGenresRecycler(genreList)
         }
     }
-
-    override fun dropView() {
-        Log.d("test", "dropView")
-        this.view = null
-    }
-
 }

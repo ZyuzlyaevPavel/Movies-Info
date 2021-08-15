@@ -9,6 +9,7 @@ interface FilmListContract:IContract {
         //fun requestFilteredFilmsByGenres(genre: List<Genre>)
         fun requestFilteredFilmsByGenre(genre: Genre)
         fun requestUnfilteredFilms()
+        fun requestData()
     }
     interface FilmListView:IContract.IView<FilmListPresenter>{
         fun updateFilmRecycler(films: MutableList<Film>?)

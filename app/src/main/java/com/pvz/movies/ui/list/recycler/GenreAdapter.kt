@@ -22,7 +22,7 @@ class GenreAdapter(private val onClickListener: GenreItemOnClickListener) :
                 genreName.apply {
                     text = item.name
                     setOnClickListener {
-                        selectGenre(position)
+                        selectGenre(position,true)
                         clickListener.onClick(item, selectedIndex)
                     }
                     isSelected = selectedIndex == position
@@ -49,8 +49,8 @@ class GenreAdapter(private val onClickListener: GenreItemOnClickListener) :
         holder.bind(getItem(position), position)
     }
 
-    fun selectGenre(position: Int) {
-        if (selectedIndex != position) {
+    fun selectGenre(position: Int,clickEvent: Boolean = false) {
+        if (selectedIndex != position || !clickEvent) {
             if (selectedIndex != -1)
                 notifyItemChanged(lastItemSelectedPosition)
             lastItemSelectedPosition = position
